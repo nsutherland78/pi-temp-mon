@@ -18,7 +18,8 @@ def initdb():
         client.switch_database(dbname)
     except Exception as e:
         print(e)
-        time.sleep(INTERVAL)
+        FAILCOUNT = FAILCOUNT + 1
+        time.sleep(INTERVAL * FAILCOUNT)
         main()
     else:
         return client
