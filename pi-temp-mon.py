@@ -5,6 +5,9 @@ import time
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
+FAILCOUNT = 0
+INTERVAL = 60
+
 
 def initdb():
     host = '10.78.0.155'
@@ -15,7 +18,7 @@ def initdb():
         client.switch_database(dbname)
     except Exception as e:
         print(e)
-        time.sleep(interval)
+        time.sleep(INTERVAL)
         main()
     else:
         return client
@@ -24,7 +27,6 @@ def initdb():
 def writetodb(client):
     measurement = "sensi01-dht22"
     location = "kitchen"
-    interval = 60
     # Run until you get a CTRL+C
     while True:
         try:
@@ -44,7 +46,7 @@ def writetodb(client):
             pass
         except Exception as e:
             print(e)
-            time.sleep(interval)
+            time.sleep(INTERVAL)
             main()
         else:
             try:
@@ -52,11 +54,13 @@ def writetodb(client):
                 client.write_points(data)
             except Exception as e:
                 print(e)
-                time.sleep(interval)
+                time.sleep(INTERVAL * FAILCOUNT)
+                FAILCOUNT = FAILCOUNT + 1
                 main()
             else:
-                # Wait until it's time to query again...
-                time.sleep(interval)
+                # Successful write to DB, reset FAILCOUNT and Wait until it's time to read/write values again...
+                FAILCOUNT = 0
+                time.sleep(INTERVAL)
 
 
 def main():
