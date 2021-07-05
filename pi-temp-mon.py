@@ -1,7 +1,8 @@
-import Adafruit_DHT as adht
-from influxdb import InfluxDBClient
 import logging
 import time
+import adafruit_dht as adht
+import board
+from influxdb import InfluxDBClient
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
@@ -27,15 +28,17 @@ def initdb():
         return client
 
 
-def writetodb(client):
+def writetodb(client, dht):
     global FAILCOUNT
     global INTERVAL
-    measurement = "sensi01-dht22"
-    location = "kitchen"
+    hostname = socket.gethostname()
+    measurement = hostname + "dht22"
+    location = "bedroom"
     # Run until you get a CTRL+C
     while True:
         try:
-            humidity,temperature = adht.read_retry(adht.DHT22, 4)
+            humidity = dht.humidity
+            temperature = dht.temperature
             data = [
             {
               "measurement": measurement,
@@ -69,8 +72,9 @@ def writetodb(client):
 
 
 def main():
+    dht = adht.DHT22(board.D4, False)
     client = initdb()
-    writetodb(client)
+    writetodb(client, dht)
 
 
 if __name__ == '__main__':
