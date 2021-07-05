@@ -22,7 +22,7 @@ def initdb():
         client = InfluxDBClient(host, port, dbname)
         client.switch_database(dbname)
     except Exception as exc:
-        logger.error(exc, exc_info=True)
+        logging.error(exc, exc_info=True)
         FAILCOUNT = FAILCOUNT + 1
         time.sleep(INTERVAL * FAILCOUNT)
         main()
@@ -54,7 +54,7 @@ def writetodb(client, dht):
         except KeyboardInterrupt:
             pass
         except Exception as exc:
-            logger.error(exc, exc_info=True)
+            logging.error(exc, exc_info=True)
             time.sleep(INTERVAL)
             main()
         else:
@@ -62,7 +62,7 @@ def writetodb(client, dht):
                 # Send the JSON data to InfluxDB
                 client.write_points(data)
             except Exception as exc:
-                logger.error(exc, exc_info=True)
+                logging.error(exc, exc_info=True)
                 time.sleep(INTERVAL * FAILCOUNT)
                 FAILCOUNT = FAILCOUNT + 1
                 main()
