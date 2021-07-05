@@ -31,7 +31,8 @@ def initdb():
 def writetodb(client, dht):
     global FAILCOUNT
     global INTERVAL
-    measurement = "sensi02-dht22"
+    hostname = socket.gethostname()
+    measurement = hostname + "dht22"
     location = "bedroom"
     # Run until you get a CTRL+C
     while True:
