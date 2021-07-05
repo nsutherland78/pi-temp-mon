@@ -1,5 +1,7 @@
 import logging
+import socket
 import time
+
 import adafruit_dht as adht
 import board
 from influxdb import InfluxDBClient
@@ -19,8 +21,8 @@ def initdb():
     try:
         client = InfluxDBClient(host, port, dbname)
         client.switch_database(dbname)
-    except Exception as e:
-        print(e)
+    except Exception as exc:
+        logger.error(exc, exc_info=True)
         FAILCOUNT = FAILCOUNT + 1
         time.sleep(INTERVAL * FAILCOUNT)
         main()
@@ -32,8 +34,7 @@ def writetodb(client, dht):
     global FAILCOUNT
     global INTERVAL
     hostname = socket.gethostname()
-    measurement = hostname + "dht22"
-    location = "bedroom"
+    measurement = hostname + "-dht22"
     # Run until you get a CTRL+C
     while True:
         try:
@@ -52,16 +53,16 @@ def writetodb(client, dht):
             ]
         except KeyboardInterrupt:
             pass
-        except Exception as e:
-            print(e)
+        except Exception as exc:
+            logger.error(exc, exc_info=True)
             time.sleep(INTERVAL)
             main()
         else:
             try:
                 # Send the JSON data to InfluxDB
                 client.write_points(data)
-            except Exception as e:
-                print(e)
+            except Exception as exc:
+                logger.error(exc, exc_info=True)
                 time.sleep(INTERVAL * FAILCOUNT)
                 FAILCOUNT = FAILCOUNT + 1
                 main()
