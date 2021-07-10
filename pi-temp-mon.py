@@ -53,6 +53,9 @@ def writetodb(client, dht):
             ]
         except KeyboardInterrupt:
             pass
+        except RuntimeError as exc:
+            logging.error(exc)
+            continue
         except Exception as exc:
             logging.error(exc, exc_info=True)
             time.sleep(INTERVAL)
